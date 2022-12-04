@@ -284,8 +284,20 @@ export class JsonRpcClient {
     tType: t.Type<T>,
     getMaxAffectedBlockNumber: (decodedResult: T) => bigint | undefined
   ): Promise<T> {
+    const cacheKey = this._getCacheKey(method, params);
+
+    const cachedResult = this._getFromCache(cacheKey);
+    if (cachedResult !== undefined) {
+      return cachedResult;
+    }
+
     const rawResult = await this._send(method, params);
     const decodedResult = decodeJsonRpcResponse(rawResult, tType);
+
+    const blockNumber = getMaxAffectedBlockNumber(decodedResult);
+    if (this._canBeCached(blockNumber)) {
+      this._storeInCache(cacheKey, decodedResult);
+    }
 
     return decodedResult;
   }
