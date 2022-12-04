@@ -122,27 +122,33 @@ export class ForkStateManager implements StateManager {
       localCode !== undefined ? toBuffer(localCode) : undefined;
 
     if (balance === undefined || nonce === undefined || code === undefined) {
-      const accountData = await this._jsonRpcClient.getAccountData(
-        address,
-        this._contextBlockNumber
-      );
 
       if (nonce === undefined) {
-        nonce = accountData.transactionCount;
+        nonce = await this._jsonRpcClient.getNonce(address, this._contextBlockNumber);
       }
 
       if (balance === undefined) {
-        balance = accountData.balance;
+        balance = await this._jsonRpcClient.getBalance(address, this._contextBlockNumber);
       }
 
       if (code === undefined) {
-        code = accountData.code;
+        code = await this._jsonRpcClient.getCode(address, this._contextBlockNumber);
+        this.putContractCode(address, code);
       }
+
+      const codeHash = keccak256(code);
+      // We ignore stateRoot since we found that it is not used anywhere of interest to us
+      const account = Account.fromAccountData({ nonce, balance, codeHash });
+      this._putAccount(address, account);
+      return account;
+    }
+    else {
+      const codeHash = keccak256(code);
+      // We ignore stateRoot since we found that it is not used anywhere of interest to us
+      return Account.fromAccountData({ nonce, balance, codeHash });
     }
 
-    const codeHash = keccak256(code);
-    // We ignore stateRoot since we found that it is not used anywhere of interest to us
-    return Account.fromAccountData({ nonce, balance, codeHash });
+    
   }
 
   public async putAccount(address: Address, account: Account): Promise<void> {
@@ -168,12 +174,13 @@ export class ForkStateManager implements StateManager {
       return toBuffer(localCode);
     }
 
-    const accountData = await this._jsonRpcClient.getAccountData(
+    const code = await this._jsonRpcClient.getCode(
       address,
       this._contextBlockNumber
     );
+    this.putContractCode(address, code);
 
-    return accountData.code;
+    return code;
   }
 
   public async getContractStorage(
@@ -202,6 +209,7 @@ export class ForkStateManager implements StateManager {
       bufferToBigInt(key),
       this._contextBlockNumber
     );
+    this.putContractStorage(address, key, remoteValue);
 
     return unpadBuffer(remoteValue);
   }

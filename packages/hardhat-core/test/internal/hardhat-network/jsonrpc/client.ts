@@ -469,10 +469,9 @@ describe("JsonRpcClient", () => {
 
         describe("getAccountData", () => {
           it("Should return the right data", async function () {
-            const data = await client.getAccountData(DAI_ADDRESS, forkNumber);
-            assert.equal(data.balance, 0n);
-            assert.equal(data.transactionCount, 1n);
-            assert.lengthOf(data.code, DAI_CONTRACT_LENGTH);
+            assert.equal(await client.getBalance(DAI_ADDRESS, forkNumber), 0n);
+            assert.equal(await client.getNonce(DAI_ADDRESS, forkNumber), 1n);
+            assert.lengthOf(await client.getCode(DAI_ADDRESS, forkNumber), DAI_CONTRACT_LENGTH);
           });
         });
       });

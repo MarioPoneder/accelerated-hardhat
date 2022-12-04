@@ -190,36 +190,31 @@ export class JsonRpcClient {
     );
   }
 
-  public async getAccountData(
-    address: Address,
-    blockNumber: bigint
-  ): Promise<{ code: Buffer; transactionCount: bigint; balance: bigint }> {
-    const results = await this._performBatch(
-      [
-        {
-          method: "eth_getCode",
-          params: [address.toString(), numberToRpcQuantity(blockNumber)],
-          tType: rpcData,
-        },
-        {
-          method: "eth_getTransactionCount",
-          params: [address.toString(), numberToRpcQuantity(blockNumber)],
-          tType: rpcQuantity,
-        },
-        {
-          method: "eth_getBalance",
-          params: [address.toString(), numberToRpcQuantity(blockNumber)],
-          tType: rpcQuantity,
-        },
-      ],
+  public async getNonce(address: Address, blockNumber: bigint) {
+    return this._perform(
+      "eth_getTransactionCount",
+      [address.toString(), numberToRpcQuantity(blockNumber)],
+      rpcQuantity,
       () => blockNumber
     );
+  }
 
-    return {
-      code: results[0],
-      transactionCount: results[1],
-      balance: results[2],
-    };
+  public async getCode(address: Address, blockNumber: bigint) {
+    return this._perform(
+      "eth_getCode",
+      [address.toString(), numberToRpcQuantity(blockNumber)],
+      rpcData,
+      () => blockNumber
+    );
+  }
+
+  public async getBalance(address: Address, blockNumber: bigint) {
+    return this._perform(
+      "eth_getBalance",
+      [address.toString(), numberToRpcQuantity(blockNumber)],
+      rpcQuantity,
+      () => blockNumber
+    );
   }
 
   // This is part of a temporary fix to https://github.com/NomicFoundation/hardhat/issues/2380
@@ -297,55 +292,6 @@ export class JsonRpcClient {
     return decodedResult;
   }
 
-  private async _performBatch(
-    batch: Array<{
-      method: string;
-      params: any[];
-      tType: t.Type<any>;
-    }>,
-    getMaxAffectedBlockNumber: (decodedResults: any[]) => bigint | undefined
-  ): Promise<any[]> {
-    // Perform Batch caches the entire batch at once.
-    // It could implement something more clever, like caching per request
-    // but it's only used in one place, and those other requests aren't
-    // used anywhere else.
-    const cacheKey = this._getBatchCacheKey(batch);
-
-    const cachedResult = this._getFromCache(cacheKey);
-    if (cachedResult !== undefined) {
-      return cachedResult;
-    }
-
-    if (this._forkCachePath !== undefined) {
-      const diskCachedResult = await this._getBatchFromDiskCache(
-        this._forkCachePath,
-        cacheKey,
-        batch.map((b) => b.tType)
-      );
-
-      if (diskCachedResult !== undefined) {
-        this._storeInCache(cacheKey, diskCachedResult);
-        return diskCachedResult;
-      }
-    }
-
-    const rawResults = await this._sendBatch(batch);
-    const decodedResults = rawResults.map((result, i) =>
-      decodeJsonRpcResponse(result, batch[i].tType)
-    );
-
-    const blockNumber = getMaxAffectedBlockNumber(decodedResults);
-    if (this._canBeCached(blockNumber)) {
-      this._storeInCache(cacheKey, decodedResults);
-
-      if (this._forkCachePath !== undefined) {
-        await this._storeInDiskCache(this._forkCachePath, cacheKey, rawResults);
-      }
-    }
-
-    return decodedResults;
-  }
-
   private async _send(
     method: string,
     params: any[],
@@ -363,21 +309,6 @@ export class JsonRpcClient {
         return null;
       }
 
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
-      throw err;
-    }
-  }
-
-  private async _sendBatch(
-    batch: Array<{ method: string; params: any[] }>,
-    isRetryCall = false
-  ): Promise<any[]> {
-    try {
-      return await this._httpProvider.sendBatch(batch);
-    } catch (err) {
-      if (this._shouldRetry(isRetryCall, err)) {
-        return this._sendBatch(batch, true);
-      }
       // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
       throw err;
     }
@@ -408,18 +339,6 @@ export class JsonRpcClient {
     return hashed.toString("hex");
   }
 
-  private _getBatchCacheKey(batch: Array<{ method: string; params: any[] }>) {
-    let fakeMethod = "";
-    const fakeParams = [];
-
-    for (const entry of batch) {
-      fakeMethod += entry.method;
-      fakeParams.push(...entry.params);
-    }
-
-    return this._getCacheKey(fakeMethod, fakeParams);
-  }
-
   private _getFromCache(cacheKey: string): any | undefined {
     return this._cache.get(cacheKey);
   }
@@ -438,20 +357,6 @@ export class JsonRpcClient {
     if (rawResult !== undefined) {
       return decodeJsonRpcResponse(rawResult, tType);
     }
-  }
-
-  private async _getBatchFromDiskCache(
-    forkCachePath: string,
-    cacheKey: string,
-    tTypes: Array<t.Type<any>>
-  ): Promise<any[] | undefined> {
-    const rawResults = await this._getRawFromDiskCache(forkCachePath, cacheKey);
-
-    if (!Array.isArray(rawResults)) {
-      return undefined;
-    }
-
-    return rawResults.map((r, i) => decodeJsonRpcResponse(r, tTypes[i]));
   }
 
   private async _getRawFromDiskCache(

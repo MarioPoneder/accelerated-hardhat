@@ -66,7 +66,7 @@ describe("ForkStateManager", () => {
 
   describe("getAccount", () => {
     it("can get account object", async () => {
-      const { code } = await client.getAccountData(
+      const code = await client.getCode(
         WETH_ADDRESS,
         forkBlockNumber
       );
@@ -168,7 +168,7 @@ describe("ForkStateManager", () => {
 
   describe("deleteAccount", () => {
     it("can delete an account", async () => {
-      const { code } = await client.getAccountData(
+      const code = await client.getCode(
         WETH_ADDRESS,
         forkBlockNumber
       );
@@ -231,7 +231,7 @@ describe("ForkStateManager", () => {
 
   describe("getContractCode", () => {
     it("can get contract code", async () => {
-      const { code } = await client.getAccountData(
+      const code = await client.getCode(
         DAI_ADDRESS,
         forkBlockNumber
       );
@@ -246,7 +246,7 @@ describe("ForkStateManager", () => {
         DAI_TOTAL_SUPPLY_STORAGE_POSITION,
         toBuffer([69, 4, 20])
       );
-      const { code } = await client.getAccountData(
+      const code = await client.getCode(
         DAI_ADDRESS,
         forkBlockNumber
       );
