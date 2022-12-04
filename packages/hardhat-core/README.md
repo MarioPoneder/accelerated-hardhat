@@ -8,6 +8,13 @@ Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum comm
 
 Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay up to date on new releases, plugins and tutorials.
 
+## Accelerated Hardhat: Changes to original v2.12.3
+
+- Hardhat network (fork): avoid unnecessary JSON-RPC calls and keep account data (nonce, balance, code, storage) in memory
+- Hardhat network (fork): introduced 'eth_call' data size limit of 10000 bytes (performance reasons)
+
+(see commit history for details)
+
 ## Installation
 
 To install Hardhat, go to an empty folder, initialize an `npm` project (i.e. `npm init`), and run
