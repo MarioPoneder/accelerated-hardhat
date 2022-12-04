@@ -341,6 +341,11 @@ export class EthModule {
     blockTag: OptionalRpcNewBlockTag
   ): Promise<string> {
     this._validateTransactionAndCallRequest(rpcCall);
+    if (rpcCall.data !== undefined && rpcCall.data.length > (100*32)) {
+      throw new InvalidInputError(`Call rejected due to node performance reasons: request data field exceeds size of 100*32 bytes.
+      
+This limit was introduced because of a multicall from MetaMask which checks the balance of known ERC20 tokens at once and therefore blocks the node.`);
+    }
 
     const blockNumberOrPending = await this._resolveNewBlockTag(blockTag);
 
