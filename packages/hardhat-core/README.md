@@ -9,9 +9,11 @@ Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum comm
 Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay up to date on new releases, plugins and tutorials.
 
 ## Accelerated Hardhat: Changes to original v2.12.3
+This version comes with an accelerated hardhat network to allow for smoother interaction with MetaMask & DApps.
 
 - Hardhat network (fork): avoid unnecessary JSON-RPC calls and keep account data (nonce, balance, code, storage) in memory
 - Hardhat network (fork): introduced 'eth_call' data size limit of 10000 bytes (performance reasons)
+- Hardhat network (fork): enable on-disk caching per default, but only store non-zero contract code ('eth_getCode')
 
 (see commit history for details)
 

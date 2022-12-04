@@ -1,3 +1,4 @@
+import { Coder } from "@ethersproject/abi/lib/coders/abstract-coder";
 import { Address, bufferToHex } from "@nomicfoundation/ethereumjs-util";
 import fsExtra from "fs-extra";
 import * as t from "io-ts";
@@ -199,13 +200,38 @@ export class JsonRpcClient {
     );
   }
 
-  public async getCode(address: Address, blockNumber: bigint) {
-    return this._perform(
-      "eth_getCode",
-      [address.toString(), numberToRpcQuantity(blockNumber)],
-      rpcData,
-      () => blockNumber
-    );
+  public async getCode(address: Address, blockNumber: bigint) : Promise<Buffer> {
+    const cacheKey = this._getCacheKey("eth_getCode", [ address.toString() ]);
+
+    const cachedResult = this._getFromCache(cacheKey);
+    if (cachedResult !== undefined) {
+      return cachedResult;
+    }
+
+    if (this._forkCachePath !== undefined) {
+      const diskCachedResult = await this._getFromDiskCache(
+        this._forkCachePath,
+        cacheKey,
+        rpcData
+      );
+      if (diskCachedResult !== undefined) {
+        this._storeInCache(cacheKey, diskCachedResult);
+        return diskCachedResult;
+      }
+    }
+
+    const rawResult = await this._send("eth_getCode", [address.toString(), numberToRpcQuantity(blockNumber)]);
+    const decodedResult = decodeJsonRpcResponse(rawResult, rpcData);
+    
+    if (this._canBeCached(blockNumber)) {
+      this._storeInCache(cacheKey, decodedResult);
+
+      if (decodedResult.byteLength > 0 && this._forkCachePath !== undefined) {
+        await this._storeInDiskCache(this._forkCachePath, cacheKey, rawResult);
+      }
+    }
+
+    return decodedResult;
   }
 
   public async getBalance(address: Address, blockNumber: bigint) {
@@ -258,36 +284,8 @@ export class JsonRpcClient {
     tType: t.Type<T>,
     getMaxAffectedBlockNumber: (decodedResult: T) => bigint | undefined
   ): Promise<T> {
-    const cacheKey = this._getCacheKey(method, params);
-
-    const cachedResult = this._getFromCache(cacheKey);
-    if (cachedResult !== undefined) {
-      return cachedResult;
-    }
-
-    if (this._forkCachePath !== undefined) {
-      const diskCachedResult = await this._getFromDiskCache(
-        this._forkCachePath,
-        cacheKey,
-        tType
-      );
-      if (diskCachedResult !== undefined) {
-        this._storeInCache(cacheKey, diskCachedResult);
-        return diskCachedResult;
-      }
-    }
-
     const rawResult = await this._send(method, params);
     const decodedResult = decodeJsonRpcResponse(rawResult, tType);
-
-    const blockNumber = getMaxAffectedBlockNumber(decodedResult);
-    if (this._canBeCached(blockNumber)) {
-      this._storeInCache(cacheKey, decodedResult);
-
-      if (this._forkCachePath !== undefined) {
-        await this._storeInDiskCache(this._forkCachePath, cacheKey, rawResult);
-      }
-    }
 
     return decodedResult;
   }
