@@ -14,6 +14,7 @@ This version comes with an accelerated hardhat network to allow for smoother int
 - Hardhat network (fork): avoid unnecessary JSON-RPC and keep account data (nonce, balance, code, storage) in memory
 - Hardhat network (fork): introduced 'eth_call' data size limit of 10000 bytes (performance reasons)
 - Hardhat network (fork): enable on-disk caching per default, but only store non-zero contract code ('eth_getCode')
+- Hardhat network (fork): adapt account nonce in order to use MetaMask without an account reset on each new fork instance
 
 (see commit history for details)
 
