@@ -1,13 +1,13 @@
 {
-  "name": "hardhat",
+  "name": "accelerated-hardhat",
   "version": "2.12.4",
-  "author": "Nomic Labs LLC",
+  "author": "Nomic Labs LLC & Mario Poneder",
   "license": "MIT",
   "homepage": "https://hardhat.org",
-  "repository": "github:nomiclabs/hardhat",
+  "repository": "github:MarioPoneder/accelerated-hardhat",
   "main": "internal/lib/hardhat-lib.js",
   "types": "internal/lib/hardhat-lib.d.ts",
-  "description": "Hardhat is an extensible developer tool that helps smart contract developers increase productivity by reliably bringing together the tools they want.",
+  "description": "Hardhat is an extensible developer tool that helps smart contract developers increase productivity by reliably bringing together the tools they want. This version comes with an accelerated hardhat network to allow for smoother interaction with MetaMask & DApps.",
   "keywords": [
     "ethereum",
     "smart-contracts",
@@ -20,7 +20,7 @@
     "solidity"
   ],
   "bin": {
-    "hardhat": "internal/cli/cli.js"
+    "accelerated-hardhat": "internal/cli/cli.js"
   },
   "engines": {
     "node": "^14.0.0 || ^16.0.0 || ^18.0.0"
