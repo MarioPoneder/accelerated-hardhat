@@ -8,7 +8,7 @@ Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum comm
 
 Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay up to date on new releases, plugins and tutorials.
 
-## Accelerated Hardhat: Changes to original v2.12.3
+## Accelerated Hardhat: Changes to original v2.12.4
 This version comes with an accelerated hardhat network to allow for smoother interaction with MetaMask & DApps.
 
 - Hardhat network (fork): avoid unnecessary JSON-RPC and keep account data (nonce, balance, code, storage) in memory
