@@ -472,6 +472,15 @@ Hardhat Network's forking functionality only works with blocks from at least spu
   public async sendTransaction(
     tx: TypedTransaction
   ): Promise<SendTransactionResult> {
+
+    // adapt account nonce in order to use MetaMask without an account reset on each new fork instance
+    const sender = tx.getSenderAddress();
+    const account = await this._stateManager.getAccount(sender);
+    if (account.nonce != tx.nonce) {
+      account.nonce = tx.nonce;
+      await this._stateManager.putAccount(sender, account);
+    }
+
     if (!this._automine) {
       return this._addPendingTransaction(tx);
     }
