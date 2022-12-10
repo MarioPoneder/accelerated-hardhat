@@ -10,7 +10,7 @@ import { getRealPathSync } from "../util/fs-utils";
  */
 export function isHardhatInstalledLocallyOrLinked(configPath?: string) {
   try {
-    const resolvedPackageJson = require.resolve("hardhat/package.json", {
+    const resolvedPackageJson = require.resolve("accelerated-hardhat/package.json", {
       paths: [configPath ?? process.cwd()],
     });
 

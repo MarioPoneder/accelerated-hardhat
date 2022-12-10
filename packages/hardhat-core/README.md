@@ -23,13 +23,13 @@ This version comes with an accelerated hardhat network to allow for smoother int
 To install Hardhat, go to an empty folder, initialize an `npm` project (i.e. `npm init`), and run
 
 ```
-npm install --save-dev hardhat
+npm install --save-dev accelerated-hardhat
 ```
 
 Once it's installed, just run this command and follow its instructions:
 
 ```
-npx hardhat
+npx accelerated-hardhat
 ```
 
 ## Documentation
