@@ -1,4 +1,4 @@
-![](https://user-images.githubusercontent.com/176499/96893278-ebc67580-1460-11eb-9530-d5df3a3d65d0.png) [![NPM Package](https://img.shields.io/npm/v/hardhat.svg?style=flat-square)](https://www.npmjs.org/package/accelerated-hardhat) [![GitPOAP Badge](https://public-api.gitpoap.io/v1/repo/MarioPoneder/accelerated-hardhat/badge)](https://www.gitpoap.io/gh/MarioPoneder/accelerated-hardhat)
+![](https://user-images.githubusercontent.com/176499/96893278-ebc67580-1460-11eb-9530-d5df3a3d65d0.png) [![NPM Package](https://img.shields.io/npm/v/accelerated-hardhat.svg?style=flat-square)](https://www.npmjs.org/package/accelerated-hardhat) [![GitPOAP Badge](https://public-api.gitpoap.io/v1/repo/MarioPoneder/accelerated-hardhat/badge)](https://www.gitpoap.io/gh/MarioPoneder/accelerated-hardhat)
 
 ---
 
